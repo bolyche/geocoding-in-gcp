@@ -18,6 +18,7 @@ class GeocodeIPs:
     SAVE_FAILED_IPS = "data/ip_addresses_broken.jsonl"
 
     def __init__(self) -> None:
+        """Create session with apikey and headers"""
         self._request_session = requests.Session()
         self._request_session.params = {"apiKey": self._get_api_token()}
         self._request_session.headers = {
@@ -40,6 +41,15 @@ class GeocodeIPs:
     def _get_request(
         self, params: Optional[Dict] = None, data: Optional[Union[Dict, str]] = None
     ) -> Optional[requests.models.Response]:
+        """Get request which either returns reponse, or saves IP info on client error
+
+        Args:
+            params Optional[Dict]: Request params, to include the IP
+            data Optional[Union[Dict, str]]: Request data, to include bulk IPs (TODO: check if this should be a list)
+
+        Returns:
+            Optional[requests.models.Response]: Request reponse or None if handling client error
+        """
         response = self._request_session.get(url=self.GEO_URL, data=data, params=params)
         if 400 <= response.status_code < 500:
             self._handle_broken_ip(params=params, message=response.text)
@@ -48,11 +58,28 @@ class GeocodeIPs:
             return response
 
     def get_ip_geo_unfiltered(self, ip: str) -> Optional[Dict]:
+        """Get individual IP geo data
+
+        Args:
+            ip str: IP address as string
+
+        Returns:
+            content Optional[Dict]: geo content if it's available for the specified IP
+        """
         response = self._get_request(params={"ip": ip})
         if response:
             return json.loads(response.content)
 
     def _handle_broken_ip(self, params: Dict, message: Dict) -> None:
+        """Save problematic IP data to file
+
+        Args:
+            params Dict: params with expected IP string
+            message Dict: Response 'message' with reason for broken data
+
+        Returns:
+            None
+        """
         with open(Path(os.getcwd(), self.SAVE_FAILED_IPS), "a+") as outfile:
             data = params
             data.update({"message": message})
