@@ -1,0 +1,22 @@
+[build-system]
+requires = ["setuptools", "setuptools-scm"]
+build-backend = "setuptools.build_meta"
+
+
+[project]
+name = "geocoding"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.13"
+dependencies = [
+    "backoff>=2.2.1",
+    "requests>=2.32.3",
+]
+
+[dependency-groups]
+dev = [
+    "mock>=5.1.0",
+    "pytest>=8.3.4",
+    "ruff>=0.8.2",
+]
